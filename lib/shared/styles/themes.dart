@@ -34,7 +34,7 @@ ThemeData darkTheme = ThemeData(
   textTheme: TextTheme(
     bodyText1: TextStyle(
       fontSize: 18.0,
-      fontWeight: FontWeight.w600,
+      fontWeight: FontWeight.w800,
       color: Colors.white,
     ),
   ),
@@ -71,7 +71,7 @@ ThemeData lightTheme = ThemeData(
   textTheme: TextTheme(
     bodyText1: TextStyle(
       fontSize: 18.0,
-      fontWeight: FontWeight.w600,
+      fontWeight: FontWeight.w800,
       color: Colors.black,
     ),
   ),

@@ -5,6 +5,7 @@ import 'package:shop_app/shared/styles/colors.dart';
 
 Widget defaultButton({
   double width = double.infinity,
+  double height = 50,
   Color background = Colors.blue,
   bool isUpperCase = true,
   double radius = 3.0,
@@ -13,7 +14,7 @@ Widget defaultButton({
 }) =>
     Container(
       width: width,
-      height: 50.0,
+      height: height,
       child: MaterialButton(
         onPressed: function,
         child: Text(
@@ -34,11 +35,12 @@ Widget defaultButton({
 Widget defaultTextButton({
   @required Function function,
   @required String text,
+  bool isUppercase = true,
 }) =>
     TextButton(
       onPressed: function,
       child: Text(
-        text.toUpperCase(),
+        isUppercase ? text.toUpperCase() : text,
       ),
     );
 
@@ -141,98 +143,106 @@ Widget buildListProduct(
   context, {
   bool isOldPrice = true,
 }) =>
-    Padding(
-      padding: const EdgeInsets.all(20.0),
-      child: Container(
-        height: 120.0,
-        child: Row(
-          children: [
-            Stack(
-              alignment: AlignmentDirectional.bottomStart,
-              children: [
-                Image(
-                  image: NetworkImage(model.image),
-                  width: 120.0,
-                  height: 120.0,
-                ),
-                if (model.discount != 0 && isOldPrice)
-                  Container(
-                    color: Colors.red,
-                    padding: EdgeInsets.symmetric(
-                      horizontal: 5.0,
-                    ),
-                    child: Text(
-                      'DISCOUNT',
-                      style: TextStyle(
-                        fontSize: 8.0,
-                        color: Colors.white,
-                      ),
-                    ),
-                  ),
-              ],
-            ),
-            SizedBox(
-              width: 20.0,
-            ),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
+    InkWell(
+      onTap: () {
+        AppCubit.get(context).getProductDetails(
+          id: model.id,
+          isSearch: isOldPrice,
+        );
+      },
+      child: Padding(
+        padding: const EdgeInsets.all(20.0),
+        child: Container(
+          height: 120.0,
+          child: Row(
+            children: [
+              Stack(
+                alignment: AlignmentDirectional.bottomStart,
                 children: [
-                  Text(
-                    model.name,
-                    maxLines: 2,
-                    overflow: TextOverflow.ellipsis,
-                    style: TextStyle(
-                      fontSize: 14.0,
-                      height: 1.3,
-                    ),
+                  Image(
+                    image: NetworkImage(model.image),
+                    width: 120.0,
+                    height: 120.0,
                   ),
-                  Spacer(),
-                  Row(
-                    children: [
-                      Text(
-                        model.price.toString(),
+                  if (model.discount != 0 && isOldPrice)
+                    Container(
+                      color: Colors.red,
+                      padding: EdgeInsets.symmetric(
+                        horizontal: 5.0,
+                      ),
+                      child: Text(
+                        'DISCOUNT',
                         style: TextStyle(
-                          fontSize: 12.0,
-                          color: defaultColor,
+                          fontSize: 8.0,
+                          color: Colors.white,
                         ),
                       ),
-                      SizedBox(
-                        width: 5.0,
-                      ),
-                      if (model.discount != 0 && isOldPrice)
-                        Text(
-                          model.oldPrice.toString(),
-                          style: TextStyle(
-                            fontSize: 10.0,
-                            color: Colors.grey,
-                            decoration: TextDecoration.lineThrough,
-                          ),
-                        ),
-                      Spacer(),
-                      IconButton(
-                        onPressed: () {
-                          AppCubit.get(context).changeFavorites(model.id);
-                        },
-                        icon: CircleAvatar(
-                          radius: 15.0,
-                          backgroundColor:
-                              AppCubit.get(context).favorites[model.id]
-                                  ? defaultColor
-                                  : Colors.grey,
-                          child: Icon(
-                            Icons.favorite_border,
-                            size: 14.0,
-                            color: Colors.white,
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
+                    ),
                 ],
               ),
-            ),
-          ],
+              SizedBox(
+                width: 20.0,
+              ),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      model.name,
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                      style: TextStyle(
+                        fontSize: 14.0,
+                        height: 1.3,
+                      ),
+                    ),
+                    Spacer(),
+                    Row(
+                      children: [
+                        Text(
+                          model.price.toString(),
+                          style: TextStyle(
+                            fontSize: 12.0,
+                            color: defaultColor,
+                          ),
+                        ),
+                        SizedBox(
+                          width: 5.0,
+                        ),
+                        if (model.discount != 0 && isOldPrice)
+                          Text(
+                            model.oldPrice.toString(),
+                            style: TextStyle(
+                              fontSize: 10.0,
+                              color: Colors.grey,
+                              decoration: TextDecoration.lineThrough,
+                            ),
+                          ),
+                        Spacer(),
+                        IconButton(
+                          onPressed: () {
+                            AppCubit.get(context).changeFavorites(model.id);
+                          },
+                          icon: CircleAvatar(
+                            radius: 15.0,
+                            backgroundColor:
+                            AppCubit.get(context).favorites[model.id] != null && AppCubit.get(context).favorites[model.id]
+                                    ? defaultColor
+                                    : Colors.grey,
+                            child: Icon(
+                              Icons.favorite_border,
+                              size: 14.0,
+                              color: Colors.white,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );

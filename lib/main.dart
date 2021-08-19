@@ -21,6 +21,7 @@ void main() async {
   await CacheHelper.init();
 
   bool isDark = CacheHelper.getData(key: 'isDark');
+  print(isDark);
 
   Widget widget;
 
@@ -58,7 +59,7 @@ class MyApp extends StatelessWidget {
       create: (BuildContext context) => AppCubit()
         ..changeAppMode(
           fromShared: isDark,
-        )..getHomeData()..getCategories()..getFavorites()..getUserData(),
+        )..getHomeData()..getCategories()..getFavorites()..getUserData()..getCarts(),
       child: BlocConsumer<AppCubit, AppStates>(
         listener: (context, state) {},
         builder: (context, state) {

@@ -8,8 +8,14 @@ const GET_CATEGORIES = 'categories';
 
 const FAVORITES = 'favorites';
 
+const CART = 'carts';
+
 const PROFILE = 'profile';
 
 const UPDATE_PROFILE = 'update-profile';
 
 const SEARCH = 'products/search';
+
+const BANNERS = 'banners';
+
+const ADDRESS = 'addresses';

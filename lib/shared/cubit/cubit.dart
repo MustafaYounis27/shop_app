@@ -1,10 +1,16 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:shop_app/models/address/get_address_model.dart';
+import 'package:shop_app/models/cart/change_cart_model.dart';
+import 'package:shop_app/models/cart/carts_model.dart';
 import 'package:shop_app/models/categories_model.dart';
-import 'package:shop_app/models/change_favorites_model.dart';
-import 'package:shop_app/models/favorites_model.dart';
+import 'package:shop_app/models/category_details_model.dart';
+import 'package:shop_app/models/favorites/change_favorites_model.dart';
+import 'package:shop_app/models/favorites/favorites_model.dart';
 import 'package:shop_app/models/home_model.dart';
 import 'package:shop_app/models/login_model.dart';
+import 'package:shop_app/models/product_details_model.dart';
+import 'package:shop_app/models/search_model.dart';
 import 'package:shop_app/modules/cateogries/categories_screen.dart';
 import 'package:shop_app/modules/favorites/favorites_screen.dart';
 import 'package:shop_app/modules/products/products_screen.dart';
@@ -32,12 +38,15 @@ class AppCubit extends Cubit<AppStates> {
 
   void changeBottom(int index) {
     currentIndex = index;
+
     emit(ShopChangeBottomNavState());
   }
 
   HomeModel homeModel;
 
   Map<int, bool> favorites = {};
+
+  Map<int, bool> carts = {};
 
   void getHomeData() {
     emit(ShopLoadingHomeDataState());
@@ -48,16 +57,18 @@ class AppCubit extends Cubit<AppStates> {
     ).then((value) {
       homeModel = HomeModel.fromJson(value.data);
 
-      //print(homeModel.data.banners[0].image);
-      //print(homeModel.status);
-
       homeModel.data.products.forEach((element) {
         favorites.addAll({
           element.id: element.inFavorites,
         });
       });
 
-      //print(favorites.toString());
+      homeModel.data.products.forEach((element) {
+        carts.addAll({
+          element.id: element.inCart,
+        });
+      });
+      print(carts.toString());
 
       emit(ShopSuccessHomeDataState());
     }).catchError((error) {
@@ -131,6 +142,93 @@ class AppCubit extends Cubit<AppStates> {
     });
   }
 
+  ChageCartModel changeCartModel;
+
+  void changeCart(int productId) {
+    carts[productId] = !carts[productId];
+
+    emit(ShopChangeCartState());
+
+    DioHelper.postData(
+      url: CART,
+      data: {
+        'product_id': productId,
+      },
+      token: token,
+    ).then((value) {
+      changeCartModel = ChageCartModel.fromJson(value.data);
+      print(changeCartModel.data.id);
+      print(changeCartModel.message);
+
+      if (!changeCartModel.status) {
+        carts[productId] = !carts[productId];
+      } else {
+        getCarts();
+      }
+
+      emit(ShopSuccessChangeCartState());
+    }).catchError((error) {
+      carts[productId] = !carts[productId];
+
+      emit(ShopErrorChangeCartState());
+    });
+  }
+
+  CartsModel cartsModel;
+
+  void getCarts() {
+    emit(ShopLoadingGetCartsState());
+
+    DioHelper.getData(
+      url: CART,
+      token: token,
+    ).then((value) {
+      cartsModel = CartsModel.fromJson(value.data);
+      print(cartsModel.data.total);
+
+      emit(ShopSuccessGetCartsState());
+    }).catchError((error) {
+      print(error.toString());
+      emit(ShopErrorGetCartsState());
+    });
+  }
+
+  void changeQuantity(int id, int quantity) {
+    emit(ShopLoadingChangeQuantityState());
+
+    DioHelper.putData(
+      url: '$CART/$id',
+      data: {
+        'quantity': quantity,
+      },
+      token: token,
+    ).then((value) {
+      emit(ShopSuccessChangeQuantityState());
+      getCarts();
+    }).catchError(((error) {
+      print(error);
+      emit(ShopErrorChangeQuantityState());
+    }));
+  }
+
+  GetAddressModel addressModel;
+
+  void getAddress()
+  {
+    emit(ShopLoadingGetAddressState());
+
+    DioHelper.getData(
+      url: ADDRESS,
+      token: token,
+    ).then((value) {
+      addressModel = GetAddressModel.fromJson(value.data);
+      emit(ShopSuccessGetAddressState());
+    }).catchError((error){
+      print(error);
+      emit(ShopErrorGetAddressState());
+    });
+  }
+
   ShopLoginModel userModel;
 
   void getUserData() {
@@ -178,14 +276,11 @@ class AppCubit extends Cubit<AppStates> {
 
   bool isDark = true;
 
-  void changeAppMode({bool fromShared})
-  {
-    if (fromShared != null)
-    {
+  void changeAppMode({bool fromShared}) {
+    if (fromShared != null) {
       isDark = fromShared;
       emit(AppChangeModeState());
-    } else
-    {
+    } else {
       isDark = !isDark;
       CacheHelper.putBoolean(key: 'isDark', value: isDark).then((value) {
         emit(AppChangeModeState());
@@ -193,4 +288,66 @@ class AppCubit extends Cubit<AppStates> {
     }
   }
 
+  ProductDetailsModel productDetailsModel;
+
+  getProductDetails({int id, bool isSearch = true}) {
+    productDetailsModel = null;
+
+    if (isSearch)
+      emit(ShopLoadingGetProductDetailsState());
+    else
+      emit(ShopLoadingFromSearchGetProductDetailsState());
+
+    DioHelper.getData(
+      url: 'products/$id',
+      token: token,
+    ).then((value) {
+      productDetailsModel = ProductDetailsModel.fromJson(value.data);
+      print(productDetailsModel.data.name);
+      emit(ShopSuccessGetProductDetailsState());
+    }).catchError((error) {
+      emit(ShopErrorGetProductDetailsState());
+    });
+  }
+
+  CategoryDetailsModel categoryDetailsModel;
+
+  getCategoryDetails(int id, String name) {
+    categoryDetailsModel = null;
+
+    emit(ShopLoadingGetCategoryDetailsState());
+
+    DioHelper.getData(
+      url: 'categories/$id',
+      token: token,
+    ).then((value) {
+      categoryDetailsModel = CategoryDetailsModel.fromJson(value.data);
+
+      emit(ShopSuccessGetCategoryDetailsState(name));
+    }).catchError((error) {
+      print(error.toString());
+      emit(ShopErrorGetCategoryDetailsState());
+    });
+  }
+
+  SearchModel model;
+
+  void search(String text) {
+    emit(SearchLoadingState());
+
+    DioHelper.postData(
+      url: SEARCH,
+      token: token,
+      data: {
+        'text': text,
+      },
+    ).then((value) {
+      model = SearchModel.fromJson(value.data);
+
+      emit(SearchSuccessState());
+    }).catchError((error) {
+      print(error.toString());
+      emit(SearchErrorState());
+    });
+  }
 }
