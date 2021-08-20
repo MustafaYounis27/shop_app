@@ -70,6 +70,12 @@ class ShopSuccessUpdateAddressState extends AppStates {}
 
 class ShopErrorUpdateAddressState extends AppStates {}
 
+class ShopLoadingAddOrderState extends AppStates {}
+
+class ShopSuccessAddOrderState extends AppStates {}
+
+class ShopErrorAddOrderState extends AppStates {}
+
 class ShopLoadingUserDataState extends AppStates {}
 
 class ShopSuccessUserDataState extends AppStates

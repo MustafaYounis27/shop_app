@@ -19,3 +19,5 @@ const SEARCH = 'products/search';
 const BANNERS = 'banners';
 
 const ADDRESS = 'addresses';
+
+const ORDER = 'orders';

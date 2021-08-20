@@ -51,6 +51,7 @@ class CategoryDetailsScreen extends StatelessWidget
                 child: Center(
                   child: Column(
                     mainAxisSize: MainAxisSize.min,
+                    crossAxisAlignment: CrossAxisAlignment.center,
                     children:
                     [
                       CircleAvatar(

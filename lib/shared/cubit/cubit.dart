@@ -229,6 +229,27 @@ class AppCubit extends Cubit<AppStates> {
     });
   }
 
+  void addOrder(int addressId)
+  {
+    emit(ShopLoadingAddOrderState());
+    DioHelper.postData(
+      url: ORDER,
+      token: token,
+      data: {
+      'address_id' : addressId,
+      'payment_method' : 1,
+      'use_points' : false,
+    },).then((value)
+    {
+      print(value.statusMessage);
+      getCarts();
+      emit(ShopSuccessAddOrderState());
+    }).catchError((error){
+      print(error.toString());
+      emit(ShopErrorAddOrderState());
+    });
+  }
+
   ShopLoginModel userModel;
 
   void getUserData() {
